@@ -1,20 +1,53 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Custom Animations */
-@keyframes pulse-red {
+@source "./src";
 
-    0%,
-    100% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-    }
+@theme {
+    --color-cyber-bg: #0B0B0F;
+    --color-cyber-card: #151518;
+    --color-cyber-primary: #7C3AED;
+    --color-cyber-accent: #EC4899;
+    --color-cyber-text: #E5E7EB;
+    --color-cyber-muted: #9CA3AF;
 
-    50% {
-        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    --font-sans: 'Inter', sans-serif;
+
+    --animate-pulse-red: pulse-red 2s infinite;
+
+    @keyframes pulse-red {
+
+        0%,
+        100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+
+        50% {
+            box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        }
     }
 }
 
-.animate-pulse-red {
-    animation: pulse-red 2s infinite;
+body {
+    background-color: var(--color-cyber-bg);
+    color: var(--color-cyber-text);
+    font-family: var(--font-sans);
+}
+
+/* Scrollbar for Cyber Look */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-cyber-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-cyber-card);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-cyber-primary);
 }

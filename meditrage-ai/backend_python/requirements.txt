@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pandas
+numpy
+transformers
+torch
+sentencepiece
+accelerate

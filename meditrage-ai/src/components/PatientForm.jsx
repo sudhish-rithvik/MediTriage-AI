@@ -1,9 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
+import { Mic, Activity } from "lucide-react";
 
 export default function PatientForm({ onResult }) {
     const [form, setForm] = useState({
+        name: "",
         age: "",
+        height: "",
+        weight: "",
         heartRate: "",
         bp: "",
         temp: "",
@@ -41,12 +45,13 @@ export default function PatientForm({ onResult }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!form.age || !form.symptoms) return alert("Age and Symptoms are required");
+        if (!form.age || !form.name) return alert("Name and Age required");
 
         setLoading(true);
         try {
             const res = await axios.post("http://localhost:5000/triage", form);
-            onResult(res.data);
+            // Inject name back into result for display if backend doesn't return it
+            onResult({ ...res.data, name: form.name });
         } catch (err) {
             alert("Triage failed: " + err.message);
         }
@@ -54,53 +59,61 @@ export default function PatientForm({ onResult }) {
     };
 
     return (
-        <div className="bg-white p-8 rounded-xl shadow-lg border border-slate-200">
-            <h2 className="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-2">
-                <span>🏥</span> Patient Intake
+        <div className="bg-cyber-card p-6 rounded-2xl shadow-xl border border-white/5 relative overflow-hidden">
+            {/* Decorative Gradient Blob */}
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-cyber-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <h2 className="text-xl font-bold mb-6 text-white flex items-center gap-2 relative z-10">
+                <Activity className="text-cyber-accent w-5 h-5" /> Patient Intake
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-600 mb-1">Age</label>
-                        <input name="age" type="number" value={form.age} onChange={handleChange} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 45" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-600 mb-1">Temp (°F)</label>
-                        <input name="temp" type="number" value={form.temp} onChange={handleChange} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 98.6" />
-                    </div>
+            <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+                <InputGroup label="Full Name" name="name" val={form.name} onChange={handleChange} ph="John Doe" />
+
+                <div className="grid grid-cols-3 gap-3">
+                    <InputGroup label="Age" name="age" val={form.age} onChange={handleChange} ph="45" />
+                    <InputGroup label="Height (cm)" name="height" val={form.height} onChange={handleChange} ph="175" />
+                    <InputGroup label="Weight (kg)" name="weight" val={form.weight} onChange={handleChange} ph="70" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-600 mb-1">Heart Rate (bpm)</label>
-                        <input name="heartRate" type="number" value={form.heartRate} onChange={handleChange} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 80" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-600 mb-1">BP (mmHg)</label>
-                        <input name="bp" type="text" value={form.bp} onChange={handleChange} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 120/80" />
-                    </div>
+                <div className="grid grid-cols-3 gap-3">
+                    <InputGroup label="Temp (°F)" name="temp" val={form.temp} onChange={handleChange} ph="98.6" />
+                    <InputGroup label="HR (bpm)" name="heartRate" val={form.heartRate} onChange={handleChange} ph="80" />
+                    <InputGroup label="BP" name="bp" val={form.bp} onChange={handleChange} ph="120/80" />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1 flex justify-between">
+                    <label className="block text-xs font-bold text-cyber-muted uppercase mb-2 flex justify-between">
                         Symptoms
-                        {listening && <span className="text-red-500 animate-pulse text-xs font-bold">● Listening...</span>}
+                        {listening && <span className="text-cyber-accent animate-pulse">● Listening...</span>}
                     </label>
-                    <div className="relative">
-                        <textarea name="symptoms" rows="3" value={form.symptoms} onChange={handleChange} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none pr-10" placeholder="Describe main complaints..."></textarea>
-                        <button type="button" onClick={startListening} title="Voice Input"
-                            className={`absolute right-2 bottom-2 p-2 rounded-full transition-all shadow-sm ${listening ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-blue-100 hover:text-blue-600'}`}>
-                            🎤
+                    <div className="relative group">
+                        <textarea name="symptoms" rows="3" value={form.symptoms} onChange={handleChange}
+                            className="w-full bg-black/20 text-white rounded-xl border border-white/10 p-3 text-sm focus:outline-none focus:border-cyber-primary focus:ring-1 focus:ring-cyber-primary transition-all resize-none"
+                            placeholder="Describe complaints..."></textarea>
+                        <button type="button" onClick={startListening}
+                            className={`absolute right-2 bottom-2 p-2 rounded-lg transition-all ${listening ? 'bg-cyber-accent text-white' : 'text-cyber-muted hover:text-white hover:bg-white/10'}`}>
+                            <Mic className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
 
                 <button type="submit" disabled={loading}
-                    className={`w-full py-3 rounded-lg font-bold text-white transition-all ${loading ? 'bg-slate-400' : 'bg-blue-600 hover:bg-blue-700 shadow-md'}`}>
-                    {loading ? "Analyzing..." : "Run AI Triage"}
+                    className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-cyber-primary to-cyber-accent hover:opacity-90 transition-all shadow-lg shadow-cyber-primary/25 disabled:opacity-50 cursor-pointer">
+                    {loading ? "Analyzing Vitals..." : "Run AI Analysis"}
                 </button>
             </form>
         </div>
     );
+}
+
+function InputGroup({ label, name, val, onChange, ph }) {
+    return (
+        <div>
+            <label className="block text-xs font-bold text-cyber-muted uppercase mb-2">{label}</label>
+            <input name={name} value={val} onChange={onChange}
+                className="w-full bg-black/20 text-white rounded-xl border border-white/10 p-3 text-sm focus:outline-none focus:border-cyber-primary focus:ring-1 focus:ring-cyber-primary transition-all placeholder-white/20"
+                placeholder={ph} />
+        </div>
+    )
 }
